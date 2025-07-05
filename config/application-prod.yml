@@ -2,12 +2,12 @@ spring:
     datasource:
         driver-class-name: com.mysql.cj.jdbc.Driver
         url: jdbc:mysql://eolala-db.cvsymy6wunvd.ap-northeast-2.rds.amazonaws.com:3306/healthdb
-        username: root
-        password: 1234
+        username: admin
+        password: eolala1234
     jpa:
         hibernate:
             ddl-auto: create-drop
-        database-platform: org.hibernate.dialect.OracleDialect
+        database-platform: org.hibernate.dialect.MySQL8Dialect
         properties:
             hibernate:
                 format_sql: true
@@ -16,3 +16,9 @@ spring:
 
 server:
     env: prod
+
+open-ai:
+    goolge:
+        api-key: AIzaSyCN7Gv4ys1f0ojoUAqj7ZvIRhVZdbCOads
+        url: https://generativelanguage.googleapis.com
+        path: /v1beta/models/gemini-2.0-flash:generateContent

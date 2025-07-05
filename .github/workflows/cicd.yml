@@ -33,7 +33,7 @@ jobs:
       - name: Grant execute permission to gradlew
         run: chmod +x ./gradlew
 
-      - name: Build with Gradle
+      - name: Clean and build jar with prod config
         run: ./gradlew clean build -x test
 
       - name: Login to DockerHub
@@ -41,9 +41,6 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_PASSWORD }}
-
-      - name: List build/libs directory
-        run: ls -l build/libs
 
       - name: Build Docker image
         run: docker build --platform linux/amd64 -t ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }}:prod .
@@ -64,7 +61,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             sudo docker pull ${{ secrets.DOCKERHUB_USERNAME }}/${{ secrets.DOCKER_IMAGE_NAME }}:prod
-            
+
             sudo docker stop app-container || true
             sudo docker rm app-container || true
 

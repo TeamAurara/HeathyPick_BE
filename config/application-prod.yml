@@ -1,0 +1,18 @@
+spring:
+    datasource:
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        url: jdbc:mysql://eolala-db.cvsymy6wunvd.ap-northeast-2.rds.amazonaws.com:3306/healthdb
+        username: root
+        password: 1234
+    jpa:
+        hibernate:
+            ddl-auto: create-drop
+        database-platform: org.hibernate.dialect.OracleDialect
+        properties:
+            hibernate:
+                format_sql: true
+                show_sql: true
+        open-in-view: false
+
+server:
+    env: prod

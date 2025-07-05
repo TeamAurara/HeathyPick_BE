@@ -1,0 +1,23 @@
+spring:
+    datasource:
+        driver-class-name: com.mysql.cj.jdbc.Driver
+        url: jdbc:mysql://localhost:3306/healthdb
+        username: root
+        password: 1234
+    jpa:
+        hibernate:
+            ddl-auto: create-drop
+        database-platform: org.hibernate.dialect.OracleDialect
+        properties:
+            hibernate:
+                format_sql: true
+                show_sql: true
+        open-in-view: false
+
+open-ai:
+    goolge:
+        api-key: AIzaSyCN7Gv4ys1f0ojoUAqj7ZvIRhVZdbCOads
+        url: https://generativelanguage.googleapis.com
+        path: /v1beta/models/gemini-2.0-flash:generateContent
+
+

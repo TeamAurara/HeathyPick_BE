@@ -21,7 +21,7 @@ public class OnboardingService {
     private final UserRepository userRepository;
 
     @Transactional
-    public void updateOnboardingInfo(Long userId, OnboardingRequest onboardingRequest) {
+    public void saveOnboardingInfo(Long userId, OnboardingRequest onboardingRequest) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new UserNotFoundException(UserErrorType.USER_NOT_FOUND));
 

@@ -1,4 +1,4 @@
-package com.soongsil.eolala.domain.auth.dto;
+package com.soongsil.eolala.auth.dto;
 
 /**
  * 백엔드에서 프론트엔드로 반환할 토큰 및 유저 정보

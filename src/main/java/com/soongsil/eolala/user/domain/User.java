@@ -1,5 +1,6 @@
 package com.soongsil.eolala.user.domain;
 
+import com.soongsil.eolala.global.domain.BaseEntity;
 import com.soongsil.eolala.user.domain.type.Gender;
 import com.soongsil.eolala.user.domain.type.SocialType;
 
@@ -13,7 +14,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-public class User {
+public class User extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

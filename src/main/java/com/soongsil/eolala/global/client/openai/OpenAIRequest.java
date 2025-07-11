@@ -1,12 +1,17 @@
 package com.soongsil.eolala.global.client.openai;
 
+import lombok.Builder;
+
+import java.util.List;
+
+@Builder
 public record OpenAIRequest(
-        Contents contents
+        List<Content> contents
 ) {
-    public record Contents(
-            Parts parts
+    public record Content(
+            List<Part> parts
     ) {
-        public record Parts(
+        public record Part(
                 String text
         ) {
         }

@@ -1,4 +1,4 @@
 package com.soongsil.eolala.auth.dto;
 
-public class AuthResponseDto {
+public class UserInfoDto {
 }

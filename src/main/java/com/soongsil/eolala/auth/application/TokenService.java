@@ -1,6 +1,7 @@
 package com.soongsil.eolala.auth.application;
 
 import com.soongsil.eolala.auth.domain.RefreshToken;
+import com.soongsil.eolala.auth.dto.RefreshedTokensDto;
 import com.soongsil.eolala.auth.dto.TokenDto;
 import com.soongsil.eolala.auth.exception.ExpiredTokenException;
 import com.soongsil.eolala.auth.exception.InvalidTokenException;
@@ -70,7 +71,7 @@ public class TokenService {
      * 리프레시 토큰 갱신
      */
     @Transactional
-    public TokenDto refreshTokens(String refreshToken) {
+    public RefreshedTokensDto refreshTokens(String refreshToken) {
         log.info("토큰 갱신 시작 - refreshToken: {}", refreshToken.substring(0, 10) + "...");
 
         RefreshToken stored = refreshTokenRepository.findByRefreshToken(refreshToken)
@@ -105,11 +106,12 @@ public class TokenService {
         
         log.info("토큰 갱신 완료 - userId: {}", stored.getUserId());
 
-        return new TokenDto(
+        return new RefreshedTokensDto(
             newAccessToken,
             newRefreshToken,
             jwtProvider.getAccessTokenValidityMs(),
-            refreshExpiresInMs
+            refreshExpiresInMs,
+            stored.getUserId()
         );
     }
 

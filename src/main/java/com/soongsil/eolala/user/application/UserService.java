@@ -44,4 +44,13 @@ public class UserService {
                 return savedUser;
             });
     }
+
+    @Transactional(readOnly = true)
+    public User findById(Long userId) {
+        return userRepository.findById(userId)
+            .orElseThrow(() -> {
+                log.warn("사용자를 찾을 수 없음 - userId: {}", userId);
+                return new RuntimeException("User not found with id: " + userId);
+            });
+    }
 } 

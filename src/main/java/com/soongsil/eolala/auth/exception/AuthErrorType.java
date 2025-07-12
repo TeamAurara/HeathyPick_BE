@@ -9,8 +9,8 @@ import org.springframework.http.HttpStatus;
 @RequiredArgsConstructor
 public enum AuthErrorType implements ErrorType {
 
-    REFRESH_TOKEN_ENCRYPTION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "RefreshToken 암호화에 실패하였습니다."),
-    REFRESH_TOKEN_DECRYPTION_FAILED(HttpStatus.INTERNAL_SERVER_ERROR, "RefreshToken 복호화에 실패하였습니다."),
+    INVALID_TOKEN(HttpStatus.UNAUTHORIZED, "유효하지 않은 토큰입니다."),
+    EXPIRED_TOKEN(HttpStatus.UNAUTHORIZED, "만료된 토큰입니다."),
     ;
 
     private final HttpStatus status;

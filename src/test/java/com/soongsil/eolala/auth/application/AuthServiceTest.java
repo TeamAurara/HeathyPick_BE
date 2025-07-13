@@ -1,8 +1,9 @@
 package com.soongsil.eolala.auth.application;
 
 import com.soongsil.eolala.auth.dto.AccessTokenResponseDto;
-
+import com.soongsil.eolala.auth.client.kakao.KakaoApiClient;
 import com.soongsil.eolala.auth.client.kakao.KakaoClient;
+import com.soongsil.eolala.auth.client.kakao.KakaoProperties;
 import com.soongsil.eolala.auth.client.kakao.dto.KakaoTokenResponse;
 import com.soongsil.eolala.auth.client.kakao.dto.KakaoUserInfoResponse;
 import com.soongsil.eolala.auth.client.kakao.dto.KakaoAccount;
@@ -39,6 +40,12 @@ class AuthServiceTest {
 
     @Mock
     private KakaoClient kakaoClient;
+    
+    @Mock
+    private KakaoApiClient kakaoApiClient;
+    
+    @Mock
+    private KakaoProperties kakaoProperties;
     
     @Mock
     private UserService userService;
@@ -104,8 +111,10 @@ class AuthServiceTest {
         // Given
         AuthRequestDto authRequest = new AuthRequestDto("authorization_code");
         
-        given(kakaoClient.getToken(anyString())).willReturn(kakaoTokenResponse);
-        given(kakaoClient.getUserInfo(anyString())).willReturn(kakaoUserInfoResponse);
+        given(kakaoProperties.clientId()).willReturn("test_client_id");
+        given(kakaoProperties.redirectUri()).willReturn("http://localhost:8080/login/oauth2/code/kakao");
+        given(kakaoClient.getToken(anyString(), anyString(), anyString(), anyString())).willReturn(kakaoTokenResponse);
+        given(kakaoApiClient.getUserInfo(anyString())).willReturn(kakaoUserInfoResponse);
         given(userService.findOrCreate(any())).willReturn(testUser);
         given(tokenService.createTokens(any(User.class))).willReturn(tokenDto);
 
@@ -120,8 +129,8 @@ class AuthServiceTest {
         assertThat(result.user().email()).isEqualTo("test@test.com");
         assertThat(result.user().nickname()).isEqualTo("TestUser");
         
-        verify(kakaoClient).getToken("authorization_code");
-        verify(kakaoClient).getUserInfo("kakao_access_token");
+        verify(kakaoClient).getToken("authorization_code", "test_client_id", "http://localhost:8080/login/oauth2/code/kakao", "authorization_code");
+        verify(kakaoApiClient).getUserInfo("Bearer kakao_access_token");
         verify(userService).findOrCreate(kakaoUserInfoResponse);
         verify(tokenService).createTokens(testUser);
     }

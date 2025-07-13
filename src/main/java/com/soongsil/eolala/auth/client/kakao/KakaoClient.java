@@ -1,52 +1,24 @@
 package com.soongsil.eolala.auth.client.kakao;
 
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.stereotype.Service;
-import org.springframework.util.LinkedMultiValueMap;
-import org.springframework.util.MultiValueMap;
-import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.http.MediaType;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.soongsil.eolala.auth.client.kakao.dto.KakaoTokenResponse;
-import com.soongsil.eolala.auth.client.kakao.dto.KakaoUserInfoResponse;
 
-@Service
-public class KakaoClient {
 
-	private final WebClient tokenWebClient;
-	private final WebClient apiWebClient;
-	private final KakaoProperties props;
+@FeignClient(name = "kakao-token", url = "https://kauth.kakao.com")
+public interface KakaoClient {
 
-	public KakaoClient(
-		@Qualifier("kakaoTokenWebClient") WebClient tokenWebClient,
-		@Qualifier("kakaoApiWebClient")   WebClient apiWebClient,
-		KakaoProperties props
-	) {
-		this.tokenWebClient = tokenWebClient;
-		this.apiWebClient   = apiWebClient;
-		this.props          = props;
-	}
-
-	/** 1) authorization code -> access/refresh token 교환 */
-	public KakaoTokenResponse getToken(String code) {
-		MultiValueMap<String, String> form = new LinkedMultiValueMap<>();
-		form.add("grant_type",   "authorization_code");
-		form.add("client_id",    props.clientId());
-		form.add("redirect_uri", props.redirectUri());
-		form.add("code",         code);
-
-		return tokenWebClient.post()
-			.uri(uriBuilder -> uriBuilder.queryParams(form).build())
-			.retrieve()
-			.bodyToMono(KakaoTokenResponse.class)
-			.block();
-	}
-
-	/** 2) access token -> 카카오 사용자 정보 조회 */
-	public KakaoUserInfoResponse getUserInfo(String accessToken) {
-		return apiWebClient.get()
-			.headers(h -> h.setBearerAuth(accessToken))
-			.retrieve()
-			.bodyToMono(KakaoUserInfoResponse.class)
-			.block();
-	}
+	/**
+	 * authorization code -> access/refresh token 교환
+	 */
+	@PostMapping(value = "/oauth/token", consumes = MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+	KakaoTokenResponse getToken(
+		@RequestParam("grant_type") String grantType,
+		@RequestParam("client_id") String clientId,
+		@RequestParam("redirect_uri") String redirectUri,
+		@RequestParam("code") String code
+	);
 }

@@ -38,7 +38,7 @@
 
     <div id="api-section" style="display: none;">
         <h2>3. API 호출 테스트</h2>
-        <button id="test-api-btn">보호된 API 호출 (/api/users/me)</button>
+        <button id="test-api-btn">보호된 API 호출 (로그아웃 확인)</button>
         <button id="refresh-token-btn">토큰 갱신</button>
         <button id="logout-btn">로그아웃</button>
         <h3>API 응답</h3>
@@ -47,11 +47,9 @@
 </div>
 
 <script>
-    // --- 설정 (본인의 값으로 수정해주세요) ---
-    const KAKAO_REST_API_KEY = 'YOUR_KAKAO_REST_API_KEY';
-    const REDIRECT_URI = 'http://localhost:8080/test-login.html';
-    // -------------------------------------
-
+    // 설정값은 백엔드에서 가져옴
+    let KAKAO_REST_API_KEY = '';
+    let REDIRECT_URI = '';
     let accessToken = null;
 
     const loginSection = document.getElementById('login-section');
@@ -63,8 +61,20 @@
     const userInfoPre = document.getElementById('user-info-pre');
     const apiResponsePre = document.getElementById('api-response-pre');
 
-    // 페이지 로드 시 URL에 인가 코드가 있는지 확인
+    // 페이지 로드 시 카카오 설정 가져오기 및 인가 코드 처리
     window.onload = async () => {
+        // 카카오 설정 가져오기
+        try {
+            const configResponse = await fetch('/api/config/kakao');
+            const configData = await configResponse.json();
+            KAKAO_REST_API_KEY = configData.clientId;
+            REDIRECT_URI = configData.redirectUri;
+        } catch (error) {
+            console.error('카카오 설정 가져오기 실패:', error);
+            updateStatus('카카오 설정 가져오기 실패', 'error');
+        }
+
+        // URL에 인가 코드가 있는지 확인
         const urlParams = new URLSearchParams(window.location.search);
         const code = urlParams.get('code');
 
@@ -77,6 +87,10 @@
 
     // 카카오 로그인 버튼 클릭
     document.getElementById('kakao-login-btn').addEventListener('click', () => {
+        if (!KAKAO_REST_API_KEY || !REDIRECT_URI) {
+            alert('카카오 설정을 가져오는 중입니다. 잠시 후 다시 시도해주세요.');
+            return;
+        }
         const kakaoAuthUrl = `https://kauth.kakao.com/oauth/authorize?client_id=${KAKAO_REST_API_KEY}&redirect_uri=${REDIRECT_URI}&response_type=code`;
         window.location.href = kakaoAuthUrl;
     });
@@ -136,7 +150,7 @@
         }
     });
 
-    // API 테스트 버튼 클릭
+    // API 테스트 버튼 클릭 (로그아웃 API로 인증 확인)
     document.getElementById('test-api-btn').addEventListener('click', async () => {
         if (!accessToken) {
             alert('먼저 로그인해주세요.');
@@ -144,9 +158,9 @@
         }
 
         try {
-            // 참고: /api/users/me는 예시 엔드포인트입니다. 실제 프로젝트에 맞게 수정해주세요.
-            const response = await fetch('/api/users/me', {
-                method: 'GET',
+            // 로그아웃 API를 호출해서 인증이 제대로 되는지 확인
+            const response = await fetch('/api/auth/logout', {
+                method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${accessToken}`,
                 },
@@ -154,15 +168,16 @@
 
             const result = await response.json();
             
-            if (response.ok) {
-                apiResponsePre.textContent = JSON.stringify(result, null, 2);
+            if (response.ok && result.success) {
+                apiResponsePre.textContent = `✅ 인증 성공! 로그아웃 API 호출 성공\n\n${JSON.stringify(result, null, 2)}`;
+                // 실제로는 로그아웃하지 않고 테스트만 함
             } else {
-                 throw new Error(result.error ? `${result.error.code}: ${result.error.message}` : `API 호출 실패 (상태 코드: ${response.status})`);
+                throw new Error(result.error ? `${result.error.code}: ${result.error.message}` : `API 호출 실패 (상태 코드: ${response.status})`);
             }
 
         } catch (error) {
             console.error('API call failed:', error);
-            apiResponsePre.textContent = error.message;
+            apiResponsePre.textContent = `❌ 인증 실패: ${error.message}`;
         }
     });
 

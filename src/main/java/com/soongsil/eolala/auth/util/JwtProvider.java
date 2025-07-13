@@ -5,7 +5,11 @@ import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.io.Decoders;
+
+import com.soongsil.eolala.auth.exception.InvalidTokenException;
+
 import io.jsonwebtoken.security.Keys;
+
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -13,6 +17,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.stereotype.Component;
 
 import javax.crypto.SecretKey;
+
 import java.util.Date;
 import java.util.List;
 
@@ -24,8 +29,8 @@ public class JwtProvider {
 	private final long refreshTokenValidity;
 
 	public JwtProvider(@Value("${jwt.secret}") String secretKeyBase64,
-					   @Value("${jwt.access-token-validity-seconds}") long accessTokenValiditySeconds,
-					   @Value("${jwt.refresh-token-validity-seconds}") long refreshTokenValiditySeconds) {
+		@Value("${jwt.access-token-validity-seconds}") long accessTokenValiditySeconds,
+		@Value("${jwt.refresh-token-validity-seconds}") long refreshTokenValiditySeconds) {
 		byte[] keyBytes = Decoders.BASE64.decode(secretKeyBase64);
 		this.key = Keys.hmacShaKeyFor(keyBytes);
 		this.accessTokenValidity = accessTokenValiditySeconds * 1000;
@@ -33,7 +38,7 @@ public class JwtProvider {
 	}
 
 	public String generateAccessToken(Long userId, List<String> roles) {
-		Date now    = new Date();
+		Date now = new Date();
 		Date expiry = new Date(now.getTime() + accessTokenValidity);
 
 		return Jwts.builder()
@@ -47,7 +52,7 @@ public class JwtProvider {
 	}
 
 	public String generateRefreshToken(Long userId, List<String> roles) {
-		Date now    = new Date();
+		Date now = new Date();
 		Date expiry = new Date(now.getTime() + refreshTokenValidity);
 
 		return Jwts.builder()
@@ -72,7 +77,7 @@ public class JwtProvider {
 		Claims claims = parseClaims(token);
 
 		@SuppressWarnings("unchecked")
-		List<String> roles = (List<String>) claims.get("roles");
+		List<String> roles = (List<String>)claims.get("roles");
 
 		var authorities = roles.stream()
 			.map(SimpleGrantedAuthority::new)
@@ -83,12 +88,14 @@ public class JwtProvider {
 		);
 	}
 
-	public boolean validateToken(String token) {
+	public void validateToken(String token) {
+		if (token == null || token.isBlank()) {
+			throw new InvalidTokenException();
+		}
 		try {
 			parseClaims(token);
-			return true;
 		} catch (JwtException e) {
-			return false;
+			throw new InvalidTokenException(e);
 		}
 	}
 

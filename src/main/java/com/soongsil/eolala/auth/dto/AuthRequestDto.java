@@ -1,9 +1,9 @@
 package com.soongsil.eolala.auth.dto;
 
-/**
- * 프론트엔드로부터 전달받은 카카오 인가 코드 정보
- */
+import jakarta.validation.constraints.NotBlank;
+
 public record AuthRequestDto(
+	@NotBlank(message = "카카오 인가 코드는 필수입니다")
 	String code      // 카카오에서 발급된 authorization code
 ) {
 }

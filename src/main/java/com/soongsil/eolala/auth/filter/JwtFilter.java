@@ -5,6 +5,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import com.soongsil.eolala.auth.exception.InvalidTokenException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.Authentication;
@@ -31,13 +32,17 @@ public class JwtFilter extends OncePerRequestFilter {
         
         String token = extractToken(request);
         
-        if (StringUtils.hasText(token) && jwtProvider.validateToken(token)) {
+        if (StringUtils.hasText(token)) {
             try {
+                jwtProvider.validateToken(token);
                 Authentication authentication = jwtProvider.getAuthentication(token);
                 SecurityContextHolder.getContext().setAuthentication(authentication);
                 log.debug("JWT 토큰 검증 성공: {}", authentication.getName());
+            } catch (InvalidTokenException e) {
+                log.warn("유효하지 않은 JWT 토큰: {}", e.getMessage());
+                SecurityContextHolder.clearContext();
             } catch (Exception e) {
-                log.warn("JWT 토큰 처리 중 오류 발생: {}", e.getMessage());
+                log.warn("JWT 토큰 처리 중 알 수 없는 오류 발생: {}", e.getMessage());
                 SecurityContextHolder.clearContext();
             }
         } else {

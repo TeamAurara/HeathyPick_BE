@@ -1,10 +1,13 @@
 package com.soongsil.eolala.global.support.dto.response;
 
+import com.fasterxml.jackson.annotation.JsonProperty;
 import com.soongsil.eolala.global.support.error.ErrorType;
 
-
-
+/**
+ * 
+ */
 public record ApiResponse<T>(
+        @JsonProperty("success")
         boolean isSuccess,
         String code,
         String message,

@@ -1,5 +1,6 @@
 package com.soongsil.eolala.user.domain;
 
+import com.soongsil.eolala.global.domain.BaseEntity;
 import com.soongsil.eolala.user.domain.type.Activity;
 import com.soongsil.eolala.user.domain.type.CkdLevel;
 import jakarta.persistence.*;
@@ -12,7 +13,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-public class UserOnboarding {
+public class UserOnboarding extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

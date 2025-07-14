@@ -21,8 +21,11 @@ public class User extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(name = "email", nullable = false, unique = true)
+    @Column(name = "email", nullable = true, unique = true)
     private String email;
+
+    @Column(name = "provider_id", nullable = false)
+    private String providerId;
 
 	@Enumerated(EnumType.STRING)
 	@Column(name = "social_type", nullable = false)
@@ -52,15 +55,20 @@ public class User extends BaseEntity {
     private UserOnboarding onboarding;
 
     @Builder
-    public User(String email, SocialType socialType, String nickname, Gender gender, int age, String profileImageUrl, boolean isOnboarded, Role role) {
+    public User(String email, String providerId, SocialType socialType, String nickname, Gender gender, int age, String profileImageUrl, boolean isOnboarded, Role role) {
         this.email = email;
+        this.providerId = providerId;
         this.nickname = nickname;
         this.gender = gender;
         this.age = age;
         this.profileImageUrl = profileImageUrl;
         this.isOnboarded = isOnboarded;
 		this.socialType = socialType;
-        this.role = role != null ? role : Role.USER; // 기본값: USER
+		if (role == null) {
+			this.role = Role.USER;
+		} else {
+			this.role = role;
+		}
     }
 
     public void updateOnboarding(UserOnboarding onboarding) {

@@ -112,8 +112,9 @@ class AuthServiceTest {
         AuthRequestDto authRequest = new AuthRequestDto("authorization_code");
         
         given(kakaoProperties.clientId()).willReturn("test_client_id");
+        given(kakaoProperties.clientSecret()).willReturn("test_client_secret");
         given(kakaoProperties.redirectUri()).willReturn("http://localhost:8080/login/oauth2/code/kakao");
-        given(kakaoClient.getToken(anyString(), anyString(), anyString(), anyString())).willReturn(kakaoTokenResponse);
+        given(kakaoClient.getToken(anyString(), anyString(), anyString(), anyString(), anyString())).willReturn(kakaoTokenResponse);
         given(kakaoApiClient.getUserInfo(anyString())).willReturn(kakaoUserInfoResponse);
         given(userService.findOrCreate(any())).willReturn(testUser);
         given(tokenService.createTokens(any(User.class))).willReturn(tokenDto);
@@ -129,7 +130,7 @@ class AuthServiceTest {
         assertThat(result.user().email()).isEqualTo("test@test.com");
         assertThat(result.user().nickname()).isEqualTo("TestUser");
         
-        verify(kakaoClient).getToken("authorization_code", "test_client_id", "http://localhost:8080/login/oauth2/code/kakao", "authorization_code");
+        verify(kakaoClient).getToken("authorization_code", "test_client_id", "test_client_secret", "http://localhost:8080/login/oauth2/code/kakao", "authorization_code");
         verify(kakaoApiClient).getUserInfo("Bearer kakao_access_token");
         verify(userService).findOrCreate(kakaoUserInfoResponse);
         verify(tokenService).createTokens(testUser);

@@ -29,6 +29,7 @@ public class AuthService {
         KakaoTokenResponse tokenResp = kakaoClient.getToken(
             "authorization_code",
             kakaoProperties.clientId(),
+            kakaoProperties.clientSecret(),
             kakaoProperties.redirectUri(),
             request.code()
         );

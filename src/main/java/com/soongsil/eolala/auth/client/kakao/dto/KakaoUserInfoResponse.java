@@ -14,11 +14,19 @@ public record KakaoUserInfoResponse(
 
 	@Override
 	public String getEmail() {
+		// account가 null인 경우 안전하게 처리
+		if (account == null) {
+			return null;
+		}
 		return account.email();
 	}
 
 	@Override
 	public String getNickname() {
+		// account가 null이거나 profile이 null인 경우 안전하게 처리
+		if (account == null || account.profile() == null) {
+			return "Unknown";
+		}
 		return account.profile().nickname();
 	}
 }

@@ -10,6 +10,7 @@ import com.soongsil.eolala.user.exception.UserNotFoundException;
 import com.soongsil.eolala.user.persistence.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -30,7 +31,6 @@ public class UserService {
                     return existingUser;
                 })
                 .orElseGet(() -> {
-                    log.info("새 사용자 생성 시작 - providerId: {}", providerId);
                     return createNewUser(kakaoUser);
                 });
     }
@@ -39,22 +39,28 @@ public class UserService {
         String providerId = kakaoUser.getId().toString();
         String email = kakaoUser.getEmail();
 
-        log.info("새 사용자 생성 시작 - providerId: {}, email: {}", providerId, email);
-        User newUser = User.builder()
-                .email(email)
-                .providerId(providerId)
-                .socialType(SocialType.KAKAO)
-                .nickname(kakaoUser.getNickname())
-                .gender(Gender.MALE) // 기본값.온보딩에서 수정 가능
-                .age(0) // 기본값.온보딩에서 수정 가능
-                .profileImageUrl(kakaoUser.account().profile().profileImageUrl())
-                .isOnboarded(false)
-                .role(Role.USER) // 기본 역할:USER
-                .build();
+        try {
+            User newUser = User.builder()
+                    .email(email)
+                    .providerId(providerId)
+                    .socialType(SocialType.KAKAO)
+                    .nickname(kakaoUser.getNickname())
+                    .gender(Gender.MALE)
+                    .age(0)
+                    .profileImageUrl(kakaoUser.account().profile().profileImageUrl())
+                    .isOnboarded(false)
+                    .role(Role.USER)
+                    .build();
 
-        User savedUser = userRepository.save(newUser);
-        log.info("새 사용자 생성 완료 - userId: {}, providerId: {}", savedUser.getId(), savedUser.getProviderId());
-        return savedUser;
+            User savedUser = userRepository.save(newUser);
+            log.info("새 사용자 생성 완료 - userId: {}", savedUser.getId());
+            return savedUser;
+            
+        } catch (DataIntegrityViolationException ex) {
+            log.debug("중복 사용자 생성 시도, 기존 사용자 조회 - providerId: {}", providerId);
+            return userRepository.findByProviderId(providerId)
+                    .orElseThrow(() -> new UserNotFoundException(UserErrorType.USER_NOT_FOUND));
+        }
     }
 
     public User getUser (Long userId){

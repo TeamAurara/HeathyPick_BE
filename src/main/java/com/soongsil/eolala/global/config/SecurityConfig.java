@@ -13,6 +13,8 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.servlet.config.annotation.ResourceHandlerRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
 /**
  * Spring Security 설정 클래스입니다.
@@ -25,7 +27,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true) // @PreAuthorize 활성화
 @RequiredArgsConstructor
-public class SecurityConfig {
+public class SecurityConfig implements WebMvcConfigurer {
 
 	private final JwtFilter jwtFilter;
 
@@ -62,5 +64,22 @@ public class SecurityConfig {
 			.sessionManagement(s -> s.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 
 		return http.build();
+	}
+	
+
+	@Override
+	public void addResourceHandlers(ResourceHandlerRegistry registry) {
+
+		registry.addResourceHandler("/static/**", "/css/**", "/js/**", "/images/**")
+			.addResourceLocations("classpath:/static/", "classpath:/public/")
+			.setCachePeriod(3600);
+
+		registry.addResourceHandler("/favicon.ico")
+			.addResourceLocations("classpath:/static/")
+			.setCachePeriod(86400);
+
+		registry.addResourceHandler("/robots.txt")
+			.addResourceLocations("classpath:/static/")
+			.setCachePeriod(86400);
 	}
 }

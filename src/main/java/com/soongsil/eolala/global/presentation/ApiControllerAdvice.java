@@ -8,6 +8,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import jakarta.servlet.http.HttpServletRequest;
 
 
 @Slf4j
@@ -15,7 +16,13 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 public class ApiControllerAdvice {
 
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ApiResponse<?>> handleException(Exception e) {
+    public ResponseEntity<ApiResponse<?>> handleException(Exception e, HttpServletRequest request) {
+        String path = request.getRequestURI();
+
+        if (isStaticResourceRequest(path)) {
+            log.debug("Static resource request (404): {} - {}", path, e.getMessage());
+            return ResponseEntity.notFound().build();
+        }
         log.error("Exception : {}", e.getMessage(), e);
         return new ResponseEntity<>(ApiResponse.error(GlobalErrorType.INTERNAL_ERROR), GlobalErrorType.INTERNAL_ERROR.getStatus());
     }
@@ -36,6 +43,29 @@ public class ApiControllerAdvice {
     public ResponseEntity<ApiResponse<?>> handleGlobalException(GlobalException e) {
         log.error("GlobalException : {}", e.getMessage(), e);
         return new ResponseEntity<>(ApiResponse.error(e.getErrorType()), e.getErrorType().getStatus());
+    }
+
+    private boolean isStaticResourceRequest(String path) {
+        if (path == null) return false;
+
+        if (path.matches(".*\\.(php|ico|html|htm|env|txt|xml|json|js|css|png|jpg|jpeg|gif|svg|woff|woff2|ttf|eot)$")) {
+            return true;
+        }
+
+        return path.contains("wp-admin") ||
+               path.contains("wp-content") ||
+               path.contains("wordpress") ||
+               path.contains("vendor/phpunit") ||
+               path.contains("admin") ||
+               path.contains("phpmyadmin") ||
+               path.contains("mysql") ||
+               path.contains("login.html") ||
+               path.contains("index.php") ||
+               path.contains("config.php") ||
+               path.contains("install.php") ||
+               path.equals("/.env") ||
+               path.equals("/robots.txt") ||
+               path.equals("/sitemap.xml");
     }
 
 }

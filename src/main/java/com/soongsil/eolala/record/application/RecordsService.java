@@ -1,4 +1,4 @@
-package com.soongsil.eolala.record;
+package com.soongsil.eolala.record.application;
 
 import com.soongsil.eolala.food.application.CustomFoodService;
 import com.soongsil.eolala.food.application.FoodService;
@@ -6,6 +6,7 @@ import com.soongsil.eolala.food.domain.CustomFood;
 import com.soongsil.eolala.record.domain.Records;
 import com.soongsil.eolala.record.dto.request.RecordsCustomFoodRequest;
 import com.soongsil.eolala.record.dto.request.RecordsFoodRequest;
+import com.soongsil.eolala.record.dto.response.DailyRecordResponse;
 import com.soongsil.eolala.record.exception.InvalidRequestException;
 import com.soongsil.eolala.record.exception.RecordsErrorType;
 import com.soongsil.eolala.record.persistence.RecordsRepository;
@@ -16,6 +17,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 @Slf4j
@@ -89,5 +92,40 @@ public class RecordsService {
                                     .build()
                     );
                 });
+    }
+
+    @Transactional(readOnly = true)
+    public DailyRecordResponse getDailyRecords(Long userId, LocalDate date) {
+        User user = userService.getUser(userId);
+
+        List<Records> recordsList = recordsRepository.findByUserAndCreatedDate(user, date);
+
+        return calculateTotal(recordsList, date);
+    }
+
+    private DailyRecordResponse calculateTotal(List<Records> recordsList, LocalDate todayDate) {
+        double totalBreakfast = 0;
+        double totalLunch = 0;
+        double totalDinner = 0;
+        double totalWater = 0;
+
+        for (Records record : recordsList) {
+            double calorie = record.getFood() != null ? record.getFood().getCalorie() : 0;
+
+            switch (record.getIntakeTimeType()) {
+                case BREAKFAST -> totalBreakfast += calorie;
+                case LUNCH -> totalLunch += calorie;
+                case DINNER -> totalDinner += calorie;
+                case WATER -> totalWater += record.getWater();
+            }
+        }
+
+        return DailyRecordResponse.of(
+                todayDate,
+                totalBreakfast,
+                totalLunch,
+                totalDinner,
+                totalWater
+        );
     }
 }

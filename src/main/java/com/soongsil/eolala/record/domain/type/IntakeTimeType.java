@@ -7,5 +7,6 @@ public enum IntakeTimeType {
     BREAKFAST,
     LUNCH,
     DINNER,
+    WATER,
     ;
 }

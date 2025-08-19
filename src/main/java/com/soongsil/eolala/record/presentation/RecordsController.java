@@ -1,13 +1,16 @@
 package com.soongsil.eolala.record.presentation;
 
 import com.soongsil.eolala.global.support.dto.response.ApiResponse;
-import com.soongsil.eolala.record.RecordsService;
+import com.soongsil.eolala.record.application.RecordsService;
 import com.soongsil.eolala.record.dto.request.RecordsCustomFoodRequest;
 import com.soongsil.eolala.record.dto.request.RecordsFoodRequest;
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Schema;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDate;
 
 @RestController
 @RequiredArgsConstructor
@@ -34,5 +37,16 @@ public class RecordsController {
     ) {
         recordsService.saveCustomFoodRecord(userId, recordsCustomFoodRequest);
         return ApiResponse.success();
+    }
+
+    @Operation(summary = "사용자 하루 섭취 기록 조회 api", description = "사용자의 하루 섭취 기록을 조회합니다.")
+    @GetMapping("/{userId}/daily")
+    public ApiResponse<?> getDailyRecords(
+            @PathVariable Long userId,
+
+            @Schema(description = "섭취 조회할 날짜", example = "2025-01-01")
+            @RequestParam(required = true) LocalDate date
+    ) {
+        return ApiResponse.success(recordsService.getDailyRecords(userId, date));
     }
 }

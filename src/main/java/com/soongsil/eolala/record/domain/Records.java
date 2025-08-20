@@ -2,6 +2,7 @@ package com.soongsil.eolala.record.domain;
 
 import com.soongsil.eolala.food.domain.CustomFood;
 import com.soongsil.eolala.food.domain.Food;
+import com.soongsil.eolala.global.domain.BaseEntity;
 import com.soongsil.eolala.record.domain.type.IntakeTimeType;
 import com.soongsil.eolala.user.domain.User;
 import jakarta.persistence.*;
@@ -14,7 +15,7 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
-public class Records {
+public class Records extends BaseEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

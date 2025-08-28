@@ -1,5 +1,6 @@
 package com.soongsil.eolala.home.application;
 
+import com.soongsil.eolala.health.application.UserHealthMetricsService;
 import com.soongsil.eolala.home.domain.vo.NutrientSummary;
 import com.soongsil.eolala.home.dto.response.HomeResponse;
 import com.soongsil.eolala.record.domain.Records;
@@ -24,6 +25,7 @@ public class HomeService {
 
     private final UserRepository userRepository;
     private final RecordsRepository recordsRepository;
+    private final UserHealthMetricsService userHealthMetricsService;
 
     public HomeResponse getHomeSummary(Long userId) {
         User user = userRepository.findById(userId)
@@ -34,11 +36,11 @@ public class HomeService {
         List<Records> todayRecords = recordsRepository.findByUserAndCreatedDate(user, LocalDate.now());
         
         NutrientSummary nutrientSummary = NutrientSummary.from(todayRecords);
-        
-        Integer dailyCalories = user.getDailyCalories();
+
+        Integer dailyCalories = userHealthMetricsService.getUserDailyCalories(userId);
         int remainingCalories = nutrientSummary.getRemainingCalories(dailyCalories);
-        
-        log.info("User {} 홈 조회 - 남은 칼로리: {}, 섭취 칼로리: {}", 
+
+        log.info("User {} 홈 조회 - 남은 칼로리: {}, 섭취 칼로리: {}",
             userId, remainingCalories, nutrientSummary.totalCalories());
         
         return HomeResponse.of(remainingCalories, dailyCalories != null ? dailyCalories : 0, nutrientSummary);
@@ -46,12 +48,7 @@ public class HomeService {
     
     private void validateUserOnboarding(User user) {
         if (!user.isOnboarded()) {
-            log.warn("User {}가 온보딩을 완료하지 않았습니다.", user.getId());
             throw new UserNotFoundException(UserErrorType.USER_NOT_ONBOARDED);
-        }
-        
-        if (user.getDailyCalories() == null) {
-            log.warn("User {}의 일일 적정 칼로리가 설정되지 않았습니다.", user.getId());
         }
     }
 }

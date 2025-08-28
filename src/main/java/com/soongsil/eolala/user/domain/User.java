@@ -51,9 +51,6 @@ public class User extends BaseEntity {
     @Column(name = "role", nullable = false)
     private Role role;
 
-    @Column(name = "daily_calories")
-    private Integer dailyCalories;
-
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, fetch = FetchType.LAZY, optional = false)
     private UserOnboarding onboarding;
 
@@ -87,9 +84,5 @@ public class User extends BaseEntity {
 
     public void updateRole(Role role) {
         this.role = role;
-    }
-
-    public void updateDailyCalories(int dailyCalories) {
-        this.dailyCalories = dailyCalories;
     }
 }

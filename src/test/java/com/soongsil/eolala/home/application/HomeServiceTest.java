@@ -2,6 +2,7 @@ package com.soongsil.eolala.home.application;
 
 import com.soongsil.eolala.food.domain.CustomFood;
 import com.soongsil.eolala.food.domain.Food;
+import com.soongsil.eolala.health.application.UserHealthMetricsService;
 import com.soongsil.eolala.home.dto.response.HomeResponse;
 import com.soongsil.eolala.record.domain.Records;
 import com.soongsil.eolala.record.domain.type.IntakeTimeType;
@@ -44,6 +45,9 @@ class HomeServiceTest {
 
     @Mock
     private RecordsRepository recordsRepository;
+    
+    @Mock
+    private UserHealthMetricsService userHealthMetricsService;
 
     @InjectMocks
     private HomeService homeService;
@@ -55,7 +59,6 @@ class HomeServiceTest {
     @BeforeEach
     void setUp() {
         user = createUserWithOnboarding();
-        user.updateDailyCalories(2000);
         
         food = Food.builder()
             .menuName("닭가슴살")
@@ -99,6 +102,7 @@ class HomeServiceTest {
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(recordsRepository.findByUserAndCreatedDate(eq(user), any(LocalDate.class)))
             .thenReturn(records);
+        when(userHealthMetricsService.getUserDailyCalories(userId)).thenReturn(2000);
 
         // when
         HomeResponse response = homeService.getHomeSummary(userId);
@@ -127,6 +131,7 @@ class HomeServiceTest {
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(recordsRepository.findByUserAndCreatedDate(eq(user), any(LocalDate.class)))
             .thenReturn(Collections.emptyList());
+        when(userHealthMetricsService.getUserDailyCalories(userId)).thenReturn(2000);
 
         // when
         HomeResponse response = homeService.getHomeSummary(userId);
@@ -151,11 +156,11 @@ class HomeServiceTest {
         // given
         Long userId = 1L;
         User userWithoutCalories = createUserWithOnboarding();
-        // dailyCalories를 설정하지 않음 (null 상태)
         
         when(userRepository.findById(userId)).thenReturn(Optional.of(userWithoutCalories));
         when(recordsRepository.findByUserAndCreatedDate(eq(userWithoutCalories), any(LocalDate.class)))
             .thenReturn(Collections.emptyList());
+        when(userHealthMetricsService.getUserDailyCalories(userId)).thenReturn(null);
 
         // when
         HomeResponse response = homeService.getHomeSummary(userId);
@@ -199,7 +204,6 @@ class HomeServiceTest {
     void getHomeSummary_ExceededCalories_ReturnsZero() {
         // given
         Long userId = 1L;
-        user.updateDailyCalories(300); // 목표 칼로리를 낮게 설정
         
         List<Records> records = Arrays.asList(
             Records.builder()
@@ -217,6 +221,7 @@ class HomeServiceTest {
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(recordsRepository.findByUserAndCreatedDate(eq(user), any(LocalDate.class)))
             .thenReturn(records);
+        when(userHealthMetricsService.getUserDailyCalories(userId)).thenReturn(300);
 
         // when
         HomeResponse response = homeService.getHomeSummary(userId);
@@ -252,6 +257,7 @@ class HomeServiceTest {
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(recordsRepository.findByUserAndCreatedDate(eq(user), any(LocalDate.class)))
             .thenReturn(List.of(record));
+        when(userHealthMetricsService.getUserDailyCalories(userId)).thenReturn(2000);
 
         // when
         HomeResponse response = homeService.getHomeSummary(userId);

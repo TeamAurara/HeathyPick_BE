@@ -3,6 +3,7 @@ package com.soongsil.eolala.user.domain;
 import com.soongsil.eolala.global.domain.BaseEntity;
 import com.soongsil.eolala.user.domain.type.Activity;
 import com.soongsil.eolala.user.domain.type.CkdLevel;
+import com.soongsil.eolala.user.domain.type.Gender;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
 import lombok.Builder;
@@ -48,5 +49,49 @@ public class UserOnboarding extends BaseEntity {
         this.goalWeight = goalWeight;
         this.ckdLevel = ckdLevel;
         this.user = user;
+    }
+
+    public int calculateDailyCalories() {
+        double bmr;
+        if (user.getGender() == Gender.MALE) {
+            bmr = (10 * weight) + (6.25 * height) - (5 * user.getAge()) + 5;
+        } else {
+            bmr = (10 * weight) + (6.25 * height) - (5 * user.getAge()) - 161;
+        }
+
+        double activityMultiplier = getActivityMultiplier();
+        double tdee = bmr * activityMultiplier;
+
+        double calorieAdjustment = calculateCalorieAdjustment();
+        double adjustedCalories = tdee + calorieAdjustment;
+
+        if (user.getGender() == Gender.MALE) {
+            adjustedCalories = Math.max(adjustedCalories, 1500);
+        } else {
+            adjustedCalories = Math.max(adjustedCalories, 1200);
+        }
+
+        return (int) Math.round(adjustedCalories);
+    }
+
+    private double getActivityMultiplier() {
+        return switch (activity) {
+            case MOVE_NONE -> 1.2;
+            case MOVE_LESS -> 1.375;
+            case MOVE_WELL -> 1.55;
+            case MOVE_HARD -> 1.725;
+        };
+    }
+
+    private double calculateCalorieAdjustment() {
+        double weightDifference = goalWeight - weight;
+        
+        if (Math.abs(weightDifference) < 1) {
+            return 0;
+        } else if (weightDifference < 0) {
+            return Math.max(-750, -500);
+        } else {
+            return Math.min(500, 300);
+        }
     }
 }

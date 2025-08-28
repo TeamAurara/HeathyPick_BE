@@ -36,6 +36,11 @@ public class OnboardingService {
         );
         UserOnboarding onboarding = onboardingRequest.toOnboarding(user);
         user.updateOnboarding(onboarding);
+        
+        int dailyCalories = onboarding.calculateDailyCalories();
+        user.updateDailyCalories(dailyCalories);
+        log.info("User {} 일일 적정 칼로리 계산 완료: {} kcal", userId, dailyCalories);
+        
         userRepository.save(user);
     }
 }

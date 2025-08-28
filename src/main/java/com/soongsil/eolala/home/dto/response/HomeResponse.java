@@ -67,7 +67,7 @@ public record HomeResponse(
     public record NutrientDetail(
         String name,
         double amount,
-        Integer dailyLimit,  // 일일 제한량 (null이면 제한 없음)
+        Integer dailyLimit,
         String unit
     ) {
         public static NutrientDetail of(String name, double amount, String unit) {

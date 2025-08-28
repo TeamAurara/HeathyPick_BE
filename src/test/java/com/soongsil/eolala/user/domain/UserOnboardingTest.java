@@ -92,10 +92,6 @@ class UserOnboardingTest {
         int dailyCalories = onboarding.calculateDailyCalories();
 
         // then
-        // BMR = (10 * 70) + (6.25 * 180) - (5 * 35) + 5 = 1655
-        // TDEE = 1655 * 1.725 = 2854.875
-        // 체중 증량 조정 = +300
-        // 최종 = 2854.875 + 300 = 3154.875 ≈ 3155
         assertThat(dailyCalories).isEqualTo(3155);
     }
 

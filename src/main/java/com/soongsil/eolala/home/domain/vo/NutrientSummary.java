@@ -1,4 +1,4 @@
-package com.soongsil.eolala.home.domain;
+package com.soongsil.eolala.home.domain.vo;
 
 import com.soongsil.eolala.food.domain.CustomFood;
 import com.soongsil.eolala.food.domain.Food;

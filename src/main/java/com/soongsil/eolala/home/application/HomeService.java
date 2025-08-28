@@ -1,6 +1,6 @@
 package com.soongsil.eolala.home.application;
 
-import com.soongsil.eolala.home.domain.NutrientSummary;
+import com.soongsil.eolala.home.domain.vo.NutrientSummary;
 import com.soongsil.eolala.home.dto.response.HomeResponse;
 import com.soongsil.eolala.record.domain.Records;
 import com.soongsil.eolala.record.persistence.RecordsRepository;

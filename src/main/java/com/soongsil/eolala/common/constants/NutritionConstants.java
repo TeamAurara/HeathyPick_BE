@@ -4,7 +4,7 @@ package com.soongsil.eolala.common.constants;
 public final class NutritionConstants {
     
     private NutritionConstants() {
-        throw new AssertionError("Cannot instantiate constants class");
+		//인스턴스화 방지
     }
     
     // 영양소 이름 상수

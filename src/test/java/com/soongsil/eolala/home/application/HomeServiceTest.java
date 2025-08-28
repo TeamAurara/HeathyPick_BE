@@ -3,6 +3,7 @@ package com.soongsil.eolala.home.application;
 import com.soongsil.eolala.food.domain.CustomFood;
 import com.soongsil.eolala.food.domain.Food;
 import com.soongsil.eolala.health.application.UserHealthMetricsService;
+import com.soongsil.eolala.health.domain.UserHealthMetrics;
 import com.soongsil.eolala.home.dto.response.HomeResponse;
 import com.soongsil.eolala.record.domain.Records;
 import com.soongsil.eolala.record.domain.type.IntakeTimeType;
@@ -98,11 +99,22 @@ class HomeServiceTest {
                 .user(user)
                 .build()
         );
+        
+        UserHealthMetrics healthMetrics = UserHealthMetrics.builder()
+            .user(user)
+            .dailyCalories(2000)
+            .dailyCarbohydrate(300)
+            .dailyProtein(150)
+            .dailyFat(65)
+            .dailySodium(2000)
+            .dailyPotassium(3500)
+            .dailyPhosphate(700)
+            .build();
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(recordsRepository.findByUserAndCreatedDate(eq(user), any(LocalDate.class)))
             .thenReturn(records);
-        when(userHealthMetricsService.getUserDailyCalories(userId)).thenReturn(2000);
+        when(userHealthMetricsService.getUserHealthMetrics(userId)).thenReturn(healthMetrics);
 
         // when
         HomeResponse response = homeService.getHomeSummary(userId);
@@ -128,10 +140,19 @@ class HomeServiceTest {
     void getHomeSummary_WithoutFoodRecords_Success() {
         // given
         Long userId = 1L;
+        UserHealthMetrics healthMetrics = UserHealthMetrics.builder()
+            .user(user)
+            .dailyCalories(2000)
+            .dailyCarbohydrate(300)
+            .dailyProtein(150)
+            .dailyFat(65)
+            .dailySodium(2000)
+            .build();
+            
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(recordsRepository.findByUserAndCreatedDate(eq(user), any(LocalDate.class)))
             .thenReturn(Collections.emptyList());
-        when(userHealthMetricsService.getUserDailyCalories(userId)).thenReturn(2000);
+        when(userHealthMetricsService.getUserHealthMetrics(userId)).thenReturn(healthMetrics);
 
         // when
         HomeResponse response = homeService.getHomeSummary(userId);
@@ -160,7 +181,7 @@ class HomeServiceTest {
         when(userRepository.findById(userId)).thenReturn(Optional.of(userWithoutCalories));
         when(recordsRepository.findByUserAndCreatedDate(eq(userWithoutCalories), any(LocalDate.class)))
             .thenReturn(Collections.emptyList());
-        when(userHealthMetricsService.getUserDailyCalories(userId)).thenReturn(null);
+        when(userHealthMetricsService.getUserHealthMetrics(userId)).thenReturn(null);
 
         // when
         HomeResponse response = homeService.getHomeSummary(userId);
@@ -217,11 +238,20 @@ class HomeServiceTest {
                 .user(user)
                 .build()
         );
+        
+        UserHealthMetrics healthMetrics = UserHealthMetrics.builder()
+            .user(user)
+            .dailyCalories(300)
+            .dailyCarbohydrate(45)
+            .dailyProtein(30)
+            .dailyFat(10)
+            .dailySodium(1500)
+            .build();
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(recordsRepository.findByUserAndCreatedDate(eq(user), any(LocalDate.class)))
             .thenReturn(records);
-        when(userHealthMetricsService.getUserDailyCalories(userId)).thenReturn(300);
+        when(userHealthMetricsService.getUserHealthMetrics(userId)).thenReturn(healthMetrics);
 
         // when
         HomeResponse response = homeService.getHomeSummary(userId);
@@ -253,11 +283,20 @@ class HomeServiceTest {
             .intakeTimeType(IntakeTimeType.DINNER)
             .user(user)
             .build();
+            
+        UserHealthMetrics healthMetrics = UserHealthMetrics.builder()
+            .user(user)
+            .dailyCalories(2000)
+            .dailyCarbohydrate(300)
+            .dailyProtein(150)
+            .dailyFat(65)
+            .dailySodium(2000)
+            .build();
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(user));
         when(recordsRepository.findByUserAndCreatedDate(eq(user), any(LocalDate.class)))
             .thenReturn(List.of(record));
-        when(userHealthMetricsService.getUserDailyCalories(userId)).thenReturn(2000);
+        when(userHealthMetricsService.getUserHealthMetrics(userId)).thenReturn(healthMetrics);
 
         // when
         HomeResponse response = homeService.getHomeSummary(userId);

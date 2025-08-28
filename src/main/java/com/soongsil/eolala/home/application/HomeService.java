@@ -39,21 +39,26 @@ public class HomeService {
         NutrientSummary nutrientSummary = NutrientSummary.from(todayRecords);
 
         UserHealthMetrics healthMetrics = userHealthMetricsService.getUserHealthMetrics(userId);
-        Integer dailyCalories = healthMetrics != null ? healthMetrics.getDailyCalories() : null;
-        int remainingCalories = nutrientSummary.getRemainingCalories(dailyCalories);
+        
+        int dailyCaloriesGoal = calculateDailyCaloriesGoal(healthMetrics);
+        int remainingCalories = nutrientSummary.getRemainingCalories(dailyCaloriesGoal);
 
         log.info("User {} 홈 조회 - 남은 칼로리: {}, 섭취 칼로리: {}",
             userId, remainingCalories, nutrientSummary.totalCalories());
         
-        return HomeResponse.of(remainingCalories, 
-                             dailyCalories != null ? dailyCalories : 0, 
-                             nutrientSummary, 
-                             healthMetrics);
+        return HomeResponse.of(remainingCalories, dailyCaloriesGoal, nutrientSummary, healthMetrics);
     }
     
     private void validateUserOnboarding(User user) {
         if (!user.isOnboarded()) {
             throw new UserNotFoundException(UserErrorType.USER_NOT_ONBOARDED);
         }
+    }
+    
+    private int calculateDailyCaloriesGoal(UserHealthMetrics healthMetrics) {
+        if (healthMetrics == null || healthMetrics.getDailyCalories() == null) {
+            return 0;
+        }
+        return healthMetrics.getDailyCalories();
     }
 }

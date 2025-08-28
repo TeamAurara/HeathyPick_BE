@@ -15,9 +15,17 @@ public record HomeResponse(
     
     public static HomeResponse of(int remainingCalories, int dailyCaloriesGoal, 
                                   NutrientSummary nutrientSummary, UserHealthMetrics healthMetrics) {
+        CaloriesInfo caloriesInfo = CaloriesInfo.of(
+            remainingCalories, 
+            dailyCaloriesGoal, 
+            nutrientSummary.totalCalories()
+        );
+        
+        NutrientsInfo nutrientsInfo = NutrientsInfo.from(nutrientSummary, healthMetrics);
+        
         return HomeResponse.builder()
-            .calories(CaloriesInfo.of(remainingCalories, dailyCaloriesGoal, nutrientSummary.totalCalories()))
-            .nutrients(NutrientsInfo.from(nutrientSummary, healthMetrics))
+            .calories(caloriesInfo)
+            .nutrients(nutrientsInfo)
             .build();
     }
 
@@ -46,19 +54,38 @@ public record HomeResponse(
         NutrientDetail phosphate
     ) {
         public static NutrientsInfo from(NutrientSummary summary, UserHealthMetrics metrics) {
+            if (metrics == null) {
+                return createWithoutLimits(summary);
+            }
+            
+            return createWithLimits(summary, metrics);
+        }
+        
+        private static NutrientsInfo createWithoutLimits(NutrientSummary summary) {
+            return NutrientsInfo.builder()
+                .carbohydrate(NutrientDetail.of(CARBOHYDRATE, summary.totalCarbohydrate(), GRAM))
+                .protein(NutrientDetail.of(PROTEIN, summary.totalProtein(), GRAM))
+                .fat(NutrientDetail.of(FAT, summary.totalFat(), GRAM))
+                .sodium(NutrientDetail.of(SODIUM, summary.totalSodium(), MILLIGRAM))
+                .potassium(NutrientDetail.of(POTASSIUM, summary.totalPotassium(), MILLIGRAM))
+                .phosphate(NutrientDetail.of(PHOSPHATE, summary.totalPhosphate(), MILLIGRAM))
+                .build();
+        }
+        
+        private static NutrientsInfo createWithLimits(NutrientSummary summary, UserHealthMetrics metrics) {
             return NutrientsInfo.builder()
                 .carbohydrate(NutrientDetail.of(CARBOHYDRATE, summary.totalCarbohydrate(), 
-                    metrics != null ? metrics.getDailyCarbohydrate() : null, GRAM))
+                    metrics.getDailyCarbohydrate(), GRAM))
                 .protein(NutrientDetail.of(PROTEIN, summary.totalProtein(), 
-                    metrics != null ? metrics.getDailyProtein() : null, GRAM))
+                    metrics.getDailyProtein(), GRAM))
                 .fat(NutrientDetail.of(FAT, summary.totalFat(), 
-                    metrics != null ? metrics.getDailyFat() : null, GRAM))
+                    metrics.getDailyFat(), GRAM))
                 .sodium(NutrientDetail.of(SODIUM, summary.totalSodium(), 
-                    metrics != null ? metrics.getDailySodium() : null, MILLIGRAM))
+                    metrics.getDailySodium(), MILLIGRAM))
                 .potassium(NutrientDetail.of(POTASSIUM, summary.totalPotassium(), 
-                    metrics != null ? metrics.getDailyPotassium() : null, MILLIGRAM))
+                    metrics.getDailyPotassium(), MILLIGRAM))
                 .phosphate(NutrientDetail.of(PHOSPHATE, summary.totalPhosphate(), 
-                    metrics != null ? metrics.getDailyPhosphate() : null, MILLIGRAM))
+                    metrics.getDailyPhosphate(), MILLIGRAM))
                 .build();
         }
     }

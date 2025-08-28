@@ -65,10 +65,9 @@ public record NutrientSummary(
         return Math.round(value * ROUNDING_SCALE) / ROUNDING_SCALE;
     }
 
-    public int getRemainingCalories(Integer dailyCaloriesGoal) {
-        if (dailyCaloriesGoal == null) {
-            return 0;
-        }
-        return Math.max(0, dailyCaloriesGoal - (int) totalCalories);
+    public int getRemainingCalories(int dailyCaloriesGoal) {
+        int consumed = (int) totalCalories;
+        int remaining = dailyCaloriesGoal - consumed;
+        return Math.max(0, remaining);
     }
 }

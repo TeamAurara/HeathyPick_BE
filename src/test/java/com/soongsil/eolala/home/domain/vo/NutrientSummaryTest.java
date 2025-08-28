@@ -69,13 +69,13 @@ class NutrientSummaryTest {
         NutrientSummary summary = NutrientSummary.from(records);
 
         // then
-        assertThat(summary.totalCalories()).isEqualTo(350.69); // 200.456 + 150.234 = 350.69
-        assertThat(summary.totalCarbohydrate()).isEqualTo(51.25); // 30.789 + 20.456 = 51.245 → 51.25
-        assertThat(summary.totalProtein()).isEqualTo(40.91); // 25.123 + 15.789 = 40.912 → 40.91
-        assertThat(summary.totalFat()).isEqualTo(15.69); // 10.456 + 5.234 = 15.69
-        assertThat(summary.totalSodium()).isEqualTo(801.25); // 500.789 + 300.456 = 801.245 → 801.25
-        assertThat(summary.totalPotassium()).isEqualTo(500.91); // 300.123 + 200.789 = 500.912 → 500.91
-        assertThat(summary.totalPhosphate()).isEqualTo(250.69); // 150.456 + 100.234 = 250.69
+        assertThat(summary.totalCalories()).isEqualTo(350.69);
+        assertThat(summary.totalCarbohydrate()).isEqualTo(51.25);
+        assertThat(summary.totalProtein()).isEqualTo(40.91);
+        assertThat(summary.totalFat()).isEqualTo(15.69);
+        assertThat(summary.totalSodium()).isEqualTo(801.25);
+        assertThat(summary.totalPotassium()).isEqualTo(500.91);
+        assertThat(summary.totalPhosphate()).isEqualTo(250.69);
     }
 
     @Test
@@ -109,7 +109,7 @@ class NutrientSummaryTest {
         assertThat(summary.totalCarbohydrate()).isEqualTo(25.0);
         assertThat(summary.totalProtein()).isEqualTo(45.0);
         assertThat(summary.totalFat()).isEqualTo(8.0);
-        assertThat(summary.totalSodium()).isEqualTo(0.0); // CustomFood는 sodium 없음
+        assertThat(summary.totalSodium()).isEqualTo(0.0);
         assertThat(summary.totalPotassium()).isEqualTo(0.0);
         assertThat(summary.totalPhosphate()).isEqualTo(0.0);
     }
@@ -212,20 +212,6 @@ class NutrientSummaryTest {
         assertThat(remaining).isEqualTo(0); // 음수가 아닌 0 반환
     }
 
-    @Test
-    @DisplayName("getRemainingCalories - null 목표 칼로리인 경우 0 반환")
-    void getRemainingCalories_NullGoal_ReturnsZero() {
-        // given
-        NutrientSummary summary = new NutrientSummary(
-            500.0, 50.0, 40.0, 20.0, 1000.0, 500.0, 200.0
-        );
-
-        // when
-        int remaining = summary.getRemainingCalories(null);
-
-        // then
-        assertThat(remaining).isEqualTo(0);
-    }
 
     @Test
     @DisplayName("소수점 반올림 정확도 테스트")

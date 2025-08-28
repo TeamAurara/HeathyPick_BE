@@ -39,9 +39,7 @@ public class OnboardingService {
         UserOnboarding onboarding = onboardingRequest.toOnboarding(user);
         user.updateOnboarding(onboarding);
         userRepository.save(user);
-        
-        // 건강 지표 계산 및 별도 테이블에 저장
+
         userHealthMetricsService.calculateAndSaveMetrics(user);
-        log.info("User {} 온보딩 완료 및 건강 지표 계산 완료", userId);
     }
 }

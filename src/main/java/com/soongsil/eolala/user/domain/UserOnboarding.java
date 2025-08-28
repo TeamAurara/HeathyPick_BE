@@ -67,10 +67,6 @@ public class UserOnboarding extends BaseEntity {
         this.user = user;
     }
 
-    /**
-     * 일일 적정 칼로리를 계산합니다.
-     * 별도 테이블(UserHealthMetrics)에 저장하기 위해 계산만 수행합니다.
-     */
     public int calculateDailyCalories() {
         double bmr = calculateBMR();
         double activityMultiplier = getActivityMultiplier();

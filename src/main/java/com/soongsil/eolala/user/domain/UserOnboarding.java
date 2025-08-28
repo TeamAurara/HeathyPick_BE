@@ -1,5 +1,6 @@
 package com.soongsil.eolala.user.domain;
 
+import com.soongsil.eolala.common.constants.NutritionConstants;
 import com.soongsil.eolala.global.domain.BaseEntity;
 import com.soongsil.eolala.user.domain.type.Activity;
 import com.soongsil.eolala.user.domain.type.CkdLevel;
@@ -10,11 +11,26 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import static com.soongsil.eolala.common.constants.NutritionConstants.CalorieConstants.*;
+
 @Table(name = "user_onboarding")
 @Getter
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 public class UserOnboarding extends BaseEntity {
+    
+    // Mifflin-St Jeor 공식 상수
+    private static final double BMR_WEIGHT_MULTIPLIER = 10.0;
+    private static final double BMR_HEIGHT_MULTIPLIER = 6.25;
+    private static final double BMR_AGE_MULTIPLIER = 5.0;
+    private static final int BMR_MALE_CONSTANT = 5;
+    private static final int BMR_FEMALE_CONSTANT = -161;
+    
+    // 활동 계수 상수
+    private static final double ACTIVITY_MULTIPLIER_SEDENTARY = 1.2;      // 좌식 생활
+    private static final double ACTIVITY_MULTIPLIER_LIGHT = 1.375;        // 가벼운 활동
+    private static final double ACTIVITY_MULTIPLIER_MODERATE = 1.55;      // 보통 활동  
+    private static final double ACTIVITY_MULTIPLIER_VERY_ACTIVE = 1.725;  // 매우 활동적
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -52,46 +68,55 @@ public class UserOnboarding extends BaseEntity {
     }
 
     public int calculateDailyCalories() {
-        double bmr;
-        if (user.getGender() == Gender.MALE) {
-            bmr = (10 * weight) + (6.25 * height) - (5 * user.getAge()) + 5;
-        } else {
-            bmr = (10 * weight) + (6.25 * height) - (5 * user.getAge()) - 161;
-        }
-
+        double bmr = calculateBMR();
         double activityMultiplier = getActivityMultiplier();
         double tdee = bmr * activityMultiplier;
 
         double calorieAdjustment = calculateCalorieAdjustment();
         double adjustedCalories = tdee + calorieAdjustment;
 
-        if (user.getGender() == Gender.MALE) {
-            adjustedCalories = Math.max(adjustedCalories, 1500);
-        } else {
-            adjustedCalories = Math.max(adjustedCalories, 1200);
-        }
-
+        adjustedCalories = ensureMinimumCalories(adjustedCalories);
         return (int) Math.round(adjustedCalories);
+    }
+    
+    private double calculateBMR() {
+        double bmr = (BMR_WEIGHT_MULTIPLIER * weight) + 
+                     (BMR_HEIGHT_MULTIPLIER * height) - 
+                     (BMR_AGE_MULTIPLIER * user.getAge());
+        
+        if (user.getGender() == Gender.MALE) {
+            bmr += BMR_MALE_CONSTANT;
+        } else {
+            bmr += BMR_FEMALE_CONSTANT;
+        }
+        
+        return bmr;
     }
 
     private double getActivityMultiplier() {
         return switch (activity) {
-            case MOVE_NONE -> 1.2;
-            case MOVE_LESS -> 1.375;
-            case MOVE_WELL -> 1.55;
-            case MOVE_HARD -> 1.725;
+            case MOVE_NONE -> ACTIVITY_MULTIPLIER_SEDENTARY;
+            case MOVE_LESS -> ACTIVITY_MULTIPLIER_LIGHT;
+            case MOVE_WELL -> ACTIVITY_MULTIPLIER_MODERATE;
+            case MOVE_HARD -> ACTIVITY_MULTIPLIER_VERY_ACTIVE;
         };
     }
 
     private double calculateCalorieAdjustment() {
         double weightDifference = goalWeight - weight;
         
-        if (Math.abs(weightDifference) < 1) {
+        if (Math.abs(weightDifference) < WEIGHT_MAINTENANCE_THRESHOLD) {
             return 0;
         } else if (weightDifference < 0) {
-            return Math.max(-750, -500);
+            return Math.max(WEIGHT_LOSS_MAX_DEFICIT, WEIGHT_LOSS_DAILY_DEFICIT);
         } else {
-            return Math.min(500, 300);
+            return Math.min(WEIGHT_GAIN_MAX_SURPLUS, WEIGHT_GAIN_DAILY_SURPLUS);
         }
+    }
+    
+    private double ensureMinimumCalories(double calories) {
+        int minimumCalories = (user.getGender() == Gender.MALE) ? 
+                              MALE_MINIMUM_CALORIES : FEMALE_MINIMUM_CALORIES;
+        return Math.max(calories, minimumCalories);
     }
 }

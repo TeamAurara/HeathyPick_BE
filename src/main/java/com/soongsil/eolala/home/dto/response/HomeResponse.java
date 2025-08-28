@@ -3,6 +3,9 @@ package com.soongsil.eolala.home.dto.response;
 import com.soongsil.eolala.home.domain.vo.NutrientSummary;
 import lombok.Builder;
 
+import static com.soongsil.eolala.common.constants.NutritionConstants.NutrientNames.*;
+import static com.soongsil.eolala.common.constants.NutritionConstants.Units.*;
+
 @Builder
 public record HomeResponse(
     CaloriesInfo calories,
@@ -42,12 +45,12 @@ public record HomeResponse(
     ) {
         public static NutrientsInfo from(NutrientSummary summary) {
             return NutrientsInfo.builder()
-                .carbohydrate(NutrientDetail.of("탄수화물", summary.totalCarbohydrate(), "g"))
-                .protein(NutrientDetail.of("단백질", summary.totalProtein(), "g"))
-                .fat(NutrientDetail.of("지방", summary.totalFat(), "g"))
-                .sodium(NutrientDetail.of("나트륨", summary.totalSodium(), "mg"))
-                .potassium(NutrientDetail.of("칼륨", summary.totalPotassium(), "mg"))
-                .phosphate(NutrientDetail.of("인", summary.totalPhosphate(), "mg"))
+                .carbohydrate(NutrientDetail.of(CARBOHYDRATE, summary.totalCarbohydrate(), GRAM))
+                .protein(NutrientDetail.of(PROTEIN, summary.totalProtein(), GRAM))
+                .fat(NutrientDetail.of(FAT, summary.totalFat(), GRAM))
+                .sodium(NutrientDetail.of(SODIUM, summary.totalSodium(), MILLIGRAM))
+                .potassium(NutrientDetail.of(POTASSIUM, summary.totalPotassium(), MILLIGRAM))
+                .phosphate(NutrientDetail.of(PHOSPHATE, summary.totalPhosphate(), MILLIGRAM))
                 .build();
         }
     }

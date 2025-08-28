@@ -6,6 +6,8 @@ import com.soongsil.eolala.record.domain.Records;
 
 import java.util.List;
 
+import static com.soongsil.eolala.common.constants.NutritionConstants.NumericConstants.*;
+
 public record NutrientSummary(
     double totalCalories,
     double totalCarbohydrate,
@@ -45,18 +47,22 @@ public record NutrientSummary(
         }
 
         return new NutrientSummary(
-            Math.round(calories * 100.0) / 100.0,
-            Math.round(carbohydrate * 100.0) / 100.0,
-            Math.round(protein * 100.0) / 100.0,
-            Math.round(fat * 100.0) / 100.0,
-            Math.round(sodium * 100.0) / 100.0,
-            Math.round(potassium * 100.0) / 100.0,
-            Math.round(phosphate * 100.0) / 100.0
+            roundToTwoDecimals(calories),
+            roundToTwoDecimals(carbohydrate),
+            roundToTwoDecimals(protein),
+            roundToTwoDecimals(fat),
+            roundToTwoDecimals(sodium),
+            roundToTwoDecimals(potassium),
+            roundToTwoDecimals(phosphate)
         );
     }
 
     private static double nullSafeDouble(Double value) {
-        return value != null ? value : 0.0;
+        return value != null ? value : DEFAULT_VALUE;
+    }
+    
+    private static double roundToTwoDecimals(double value) {
+        return Math.round(value * ROUNDING_SCALE) / ROUNDING_SCALE;
     }
 
     public int getRemainingCalories(Integer dailyCaloriesGoal) {

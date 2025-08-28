@@ -46,6 +46,42 @@ public final class NutritionConstants {
         private CalorieConstants() {}
     }
     
+    // CKD 단계별 영양소 제한 상수
+    public static final class CkdNutrientLimits {
+        // 단백질 제한 (g/kg 체중)
+        public static final double PROTEIN_LEVEL_1_2 = 0.8;     // CKD 1-2단계
+        public static final double PROTEIN_LEVEL_3 = 0.7;       // CKD 3a-3b단계
+        public static final double PROTEIN_LEVEL_4_5 = 0.6;     // CKD 4-5단계 (투석 전)
+        public static final double PROTEIN_DIALYSIS = 1.2;      // 투석 중
+        
+        // 나트륨 제한 (mg/일)
+        public static final int SODIUM_LEVEL_1_2 = 2300;
+        public static final int SODIUM_LEVEL_3_5 = 2000;
+        
+        // 칼륨 제한 (mg/일)
+        public static final int POTASSIUM_NO_LIMIT = -1;        // 제한 없음
+        public static final int POTASSIUM_LEVEL_3B_4 = 2500;
+        public static final int POTASSIUM_LEVEL_5 = 2000;
+        
+        // 인 제한 (mg/일)
+        public static final int PHOSPHATE_NO_LIMIT = -1;        // 제한 없음
+        public static final int PHOSPHATE_LEVEL_3 = 900;
+        public static final int PHOSPHATE_LEVEL_4_5 = 800;
+        
+        // 영양소 비율 (%)
+        public static final double CARB_RATIO_MIN = 0.5;        // 50%
+        public static final double CARB_RATIO_MAX = 0.6;        // 60%
+        public static final double FAT_RATIO_MIN = 0.25;        // 25%
+        public static final double FAT_RATIO_MAX = 0.35;        // 35%
+        
+        // 칼로리당 영양소 변환 계수
+        public static final int CALORIES_PER_GRAM_CARB = 4;
+        public static final int CALORIES_PER_GRAM_PROTEIN = 4;
+        public static final int CALORIES_PER_GRAM_FAT = 9;
+        
+        private CkdNutrientLimits() {}
+    }
+    
     // 수치 처리 관련 상수
     public static final class NumericConstants {
         public static final double ROUNDING_SCALE = 100.0;  // 소수점 둘째 자리 반올림용

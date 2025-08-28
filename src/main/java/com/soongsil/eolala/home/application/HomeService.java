@@ -1,6 +1,7 @@
 package com.soongsil.eolala.home.application;
 
 import com.soongsil.eolala.health.application.UserHealthMetricsService;
+import com.soongsil.eolala.health.domain.UserHealthMetrics;
 import com.soongsil.eolala.home.domain.vo.NutrientSummary;
 import com.soongsil.eolala.home.dto.response.HomeResponse;
 import com.soongsil.eolala.record.domain.Records;
@@ -37,13 +38,17 @@ public class HomeService {
         
         NutrientSummary nutrientSummary = NutrientSummary.from(todayRecords);
 
-        Integer dailyCalories = userHealthMetricsService.getUserDailyCalories(userId);
+        UserHealthMetrics healthMetrics = userHealthMetricsService.getUserHealthMetrics(userId);
+        Integer dailyCalories = healthMetrics != null ? healthMetrics.getDailyCalories() : null;
         int remainingCalories = nutrientSummary.getRemainingCalories(dailyCalories);
 
         log.info("User {} 홈 조회 - 남은 칼로리: {}, 섭취 칼로리: {}",
             userId, remainingCalories, nutrientSummary.totalCalories());
         
-        return HomeResponse.of(remainingCalories, dailyCalories != null ? dailyCalories : 0, nutrientSummary);
+        return HomeResponse.of(remainingCalories, 
+                             dailyCalories != null ? dailyCalories : 0, 
+                             nutrientSummary, 
+                             healthMetrics);
     }
     
     private void validateUserOnboarding(User user) {

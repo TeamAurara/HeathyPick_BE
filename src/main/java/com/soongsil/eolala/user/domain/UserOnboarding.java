@@ -12,6 +12,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import static com.soongsil.eolala.common.constants.NutritionConstants.CalorieConstants.*;
+import static com.soongsil.eolala.common.constants.NutritionConstants.CkdNutrientLimits.*;
 
 @Table(name = "user_onboarding")
 @Getter
@@ -25,11 +26,11 @@ public class UserOnboarding extends BaseEntity {
     private static final double BMR_AGE_MULTIPLIER = 5.0;
     private static final int BMR_MALE_CONSTANT = 5;
     private static final int BMR_FEMALE_CONSTANT = -161;
-    
+
     // 활동 계수 상수
     private static final double ACTIVITY_MULTIPLIER_SEDENTARY = 1.2;      // 좌식 생활
     private static final double ACTIVITY_MULTIPLIER_LIGHT = 1.375;        // 가벼운 활동
-    private static final double ACTIVITY_MULTIPLIER_MODERATE = 1.55;      // 보통 활동  
+    private static final double ACTIVITY_MULTIPLIER_MODERATE = 1.55;      // 보통 활동
     private static final double ACTIVITY_MULTIPLIER_VERY_ACTIVE = 1.725;  // 매우 활동적
 
     @Id
@@ -118,5 +119,55 @@ public class UserOnboarding extends BaseEntity {
         int minimumCalories = (user.getGender() == Gender.MALE) ? 
                               MALE_MINIMUM_CALORIES : FEMALE_MINIMUM_CALORIES;
         return Math.max(calories, minimumCalories);
+    }
+    
+
+    public int calculateDailyProteinLimit() {
+        double proteinPerKg = switch (ckdLevel) {
+            case LEVEL_1, LEVEL_2 -> PROTEIN_LEVEL_1_2;
+            case LEVEL_3A, LEVEL_3B -> PROTEIN_LEVEL_3;
+            case LEVEL_4, LEVEL_5 -> PROTEIN_LEVEL_4_5;
+        };
+        
+        return (int) Math.round(weight * proteinPerKg);
+    }
+    
+
+    public int calculateDailyCarbohydrateLimit() {
+        int dailyCalories = calculateDailyCalories();
+        double carbCalories = dailyCalories * ((CARB_RATIO_MIN + CARB_RATIO_MAX) / 2);
+        return (int) Math.round(carbCalories / CALORIES_PER_GRAM_CARB);
+    }
+    
+
+    public int calculateDailyFatLimit() {
+        int dailyCalories = calculateDailyCalories();
+        double fatCalories = dailyCalories * ((FAT_RATIO_MIN + FAT_RATIO_MAX) / 2);
+        return (int) Math.round(fatCalories / CALORIES_PER_GRAM_FAT);
+    }
+    
+
+    public int calculateDailySodiumLimit() {
+        return switch (ckdLevel) {
+            case LEVEL_1, LEVEL_2 -> SODIUM_LEVEL_1_2;
+            case LEVEL_3A, LEVEL_3B, LEVEL_4, LEVEL_5 -> SODIUM_LEVEL_3_5;
+        };
+    }
+
+    public int calculateDailyPotassiumLimit() {
+        return switch (ckdLevel) {
+            case LEVEL_1, LEVEL_2, LEVEL_3A -> POTASSIUM_NO_LIMIT;
+            case LEVEL_3B, LEVEL_4 -> POTASSIUM_LEVEL_3B_4;
+            case LEVEL_5 -> POTASSIUM_LEVEL_5;
+        };
+    }
+    
+
+    public int calculateDailyPhosphateLimit() {
+        return switch (ckdLevel) {
+            case LEVEL_1, LEVEL_2 -> PHOSPHATE_NO_LIMIT;
+            case LEVEL_3A, LEVEL_3B -> PHOSPHATE_LEVEL_3;
+            case LEVEL_4, LEVEL_5 -> PHOSPHATE_LEVEL_4_5;
+        };
     }
 }

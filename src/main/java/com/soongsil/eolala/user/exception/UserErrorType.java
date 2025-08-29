@@ -10,6 +10,7 @@ import org.springframework.http.HttpStatus;
 public enum UserErrorType implements ErrorType {
     USER_NOT_FOUND(HttpStatus.NOT_FOUND, "유저를 찾을 수 없습니다."),
     ALREADY_ONBOARDED(HttpStatus.BAD_REQUEST, "이미 온보딩이 존재하는 유저입니다."),
+    USER_NOT_ONBOARDED(HttpStatus.BAD_REQUEST, "온보딩이 완료되지 않은 유저입니다."),
     ;
 
     private final HttpStatus status;

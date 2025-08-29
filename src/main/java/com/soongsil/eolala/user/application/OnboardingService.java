@@ -1,5 +1,6 @@
 package com.soongsil.eolala.user.application;
 
+import com.soongsil.eolala.health.application.UserHealthMetricsService;
 import com.soongsil.eolala.user.domain.User;
 import com.soongsil.eolala.user.domain.UserOnboarding;
 import com.soongsil.eolala.user.domain.type.Gender;
@@ -19,6 +20,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class OnboardingService {
 
     private final UserRepository userRepository;
+    private final UserHealthMetricsService userHealthMetricsService;
 
     @Transactional
     public void saveOnboardingInfo(Long userId, OnboardingRequest onboardingRequest) {
@@ -37,5 +39,7 @@ public class OnboardingService {
         UserOnboarding onboarding = onboardingRequest.toOnboarding(user);
         user.updateOnboarding(onboarding);
         userRepository.save(user);
+
+        userHealthMetricsService.calculateAndSaveMetrics(user);
     }
 }

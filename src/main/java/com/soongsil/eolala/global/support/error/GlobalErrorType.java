@@ -12,6 +12,8 @@ public enum GlobalErrorType implements ErrorType {
     FAILED_REQUEST_VALIDATION(HttpStatus.BAD_REQUEST, "요청 데이터 검증에 실패하였습니다."),
     INVALID_REQUEST_ARGUMENT(HttpStatus.BAD_REQUEST, "잘못된 요청 인자입니다."),
     UNAUTHORIZED(HttpStatus.UNAUTHORIZED, "인증에 실패하였습니다."),
+    FAILED_MAKE_DUMMY(HttpStatus.MULTI_STATUS, "더미 데이터를 생성하지 못했습니다"),
+    FAILED_LOAD_RESOURCE(HttpStatus.INTERNAL_SERVER_ERROR, "리소스를 불러오지 못했습니다.")
     ;
 
     private final HttpStatus status;
